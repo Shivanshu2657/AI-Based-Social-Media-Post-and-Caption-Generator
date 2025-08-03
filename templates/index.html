@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Caption Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <a href="/history" style="color: #1e90ff; position: fixed; top: 20px; right: 20px; text-decoration: none;">View History</a>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      font-family: 'Segoe UI', sans-serif;
+      height: 100%;
+      background-color: black;
+      color: white;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    body.fade-in {
+      animation: fadeInBody 1.5s ease-in-out;
+    }
+
+    @keyframes fadeInBody {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    #stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .hero, .slider, .main-section {
+      position: relative;
+      z-index: 1;
+      animation: fadeInSection 2s ease;
+    }
+
+    @keyframes fadeInSection {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .scroll-btn {
+      margin-top: 30px;
+      padding: 12px 25px;
+      font-size: 1.1rem;
+      color: #fff;
+      background: #1e90ff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .scroll-btn:hover {
+      background: #006fd6;
+    }
+
+    .slider {
+      display: flex;
+      overflow: hidden;
+      font-size: 1.6rem;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 2rem 0;
+      white-space: nowrap;
+    }
+
+    .slide-texts {
+      display: inline-flex;
+      animation: slide 40s linear infinite;
+    }
+
+    .slide-texts div {
+      min-width: 100vw;
+      text-align: center;
+      padding: 0 2rem;
+    }
+
+    @keyframes slide {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-400%); }
+    }
+
+    .main-section {
+      padding: 4rem 2rem;
+      text-align: center;
+      min-height: 100vh;
+    }
+
+    .upload-box {
+      margin-top: 20px;
+      padding: 20px;
+      background-color: #222;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    .upload-box input[type="file"] {
+      color: white;
+      margin-bottom: 15px;
+    }
+
+    .generate-btn {
+      padding: 10px 20px;
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .generate-btn:hover {
+      background-color: #006fd6;
+    }
+
+    #preview {
+      margin-top: 15px;
+      max-width: 300px;
+      border-radius: 10px;
+    }
+
+    .caption-output {
+      margin-top: 30px;
+      font-size: 1.2rem;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    .caption-output.show {
+      opacity: 1;
+    }
+
+    #musicToggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid #ccc;
+      color: white;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body class="fade-in">
+
+  <canvas id="stars"></canvas>
+
+  <!-- Background Music -->
+  <audio id="bgMusic" loop autoplay>
+    <source src="https://cdn.pixabay.com/audio/2023/03/22/audio_c2dc59cefa.mp3" type="audio/mp3">
+  </audio>
+  <button id="musicToggle">🔊 Mute</button>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <h1>Welcome to AI Caption Generator</h1>
+    <p>Turn your pictures into stories with one click.</p>
+    <button class="scroll-btn" onclick="document.getElementById('main').scrollIntoView({ behavior: 'smooth' })">
+      Generate Your Captions
+    </button>
+  </div>
+
+  <!-- Slider Section -->
+  <div class="slider">
+    <div class="slide-texts">
+      <div>Make Your Pictures Speak</div>
+      <div>Generate Captions in a Go</div>
+      <div>Boost Your Social Media Presence</div>
+      <div>AI-Powered Caption Creation</div>
+    </div>
+  </div>
+
+  <!-- Main Upload Section -->
+  <div id="main" class="main-section">
+    <h2>Upload Image & Generate Caption</h2>
+    <div class="upload-box">
+      <form method="POST" action="/" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" onchange="previewImage(event)" required><br>
+        {% if image_path %}
+          <img id="preview" src="{{ image_path }}" style="display:block; max-width:300px; border-radius:10px;" />
+        {% else %}
+          <img id="preview" style="display:none" />
+        {% endif %}
+        <br>
+        <button type="submit" class="generate-btn">Generate Caption</button>
+      </form>
+    </div>
+
+    <div id="caption" class="caption-output show">
+      {{ caption if caption else 'Your AI-generated caption will appear here...' }}
+    </div>
+  </div>
+
+  <script>
+    // Stars animation
+    const canvas = document.getElementById("stars");
+    const ctx = canvas.getContext("2d");
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = document.body.scrollHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+    const stars = [];
+    for (let i = 0; i < 300; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.5,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4
+      });
+    }
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      for (let star of stars) {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.r, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+    function updateStars() {
+      for (let star of stars) {
+        star.x += star.dx;
+        star.y += star.dy;
+        if (star.x < 0 || star.x > canvas.width) star.dx *= -1;
+        if (star.y < 0 || star.y > canvas.height) star.dy *= -1;
+      }
+    }
+    function animateStars() {
+      drawStars();
+      updateStars();
+      requestAnimationFrame(animateStars);
+    }
+    animateStars();
+
+    // Image preview
+    function previewImage(event) {
+      const preview = document.getElementById("preview");
+      preview.src = URL.createObjectURL(event.target.files[0]);
+      preview.style.display = "block";
+    }
+
+    // Music mute/unmute
+    const audio = document.getElementById("bgMusic");
+    const toggleBtn = document.getElementById("musicToggle");
+    toggleBtn.onclick = () => {
+      if (audio.paused) {
+        audio.play();
+        toggleBtn.textContent = "🔊 Mute";
+      } else {
+        audio.pause();
+        toggleBtn.textContent = "🔇 Unmute";
+      }
+    };
+  </script>
+
+</body>
+</html>
