@@ -1,4 +1,4 @@
-Social Media Post Generator (AI-Powered)
+Social Media Post & Caption Generator (AI-Powered)
 
 This is a Flask-based web application that automatically generates captions for uploaded images using an AI image captioning model (BLIP). It categorizes the caption into tags like `Travel`, `Food`, `Pets`, etc., to help with social media content creation.
 
