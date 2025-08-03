@@ -42,6 +42,24 @@ Download the BLIP model from Hugging Face: https://huggingface.co/Salesforce/bli
 
 4. 🏃 Run the Flask App
    python app.py
+Important:
+Hugging Face Model is Loaded Locally
+This project uses the Salesforce/blip-image-captioning-base model from Hugging Face via a local directory, not downloaded at runtime.
+To ensure the app runs correctly:
+
+Make sure the model files are located at:
+hf_model/Salesforce/blip-image-captioning-base/
+
+This folder must include files like:
+
+config.json
+preprocessor_config.json
+ytorch_model.bin
+etc.
+
+If deploying the project (e.g. on Render), ensure the hf_model/ folder is included in the repository and accessible.
+
+⚠️ Do not rely on internet access to fetch the model dynamically. This project loads the model strictly from disk.
 ---------------------------------------------------------------------------
 
 Technologies Used:
