@@ -44,12 +44,20 @@ Download the BLIP model from Hugging Face: https://huggingface.co/Salesforce/bli
    python app.py
 ---------------------------------------------------------------------------
 
- Technologies Used:
- 
-1.Flask (Python Web Framework)
-2.Hugging Face Transformers (BLIP model)
-3.PyTorch (for model execution)
-4.Pillow (image preprocessing)
+Technologies Used:
+ 1. Frontend Technologies
+    HTML
+    CSS
+    JavaScript
+    Canvas API
+    Audio API
+ 2.AI / ML Components
+     BLIP (Salesforce)
+     Image Categorization
+ 3.Flask (Python Web Framework)
+ 4.Hugging Face Transformers (BLIP model)
+ 5.PyTorch (for model execution)
+ 6.Pillow (image preprocessing)
 -----------------------------------------------------------------------------
 
 Example Usage:
@@ -64,7 +72,6 @@ Example Usage:
 Working Images:-
 <img width="1366" height="768" alt="Screenshot (79)" src="https://github.com/user-attachments/assets/3bfdadae-89c2-4e09-b643-cbc01ec89442" />
 <img width="1366" height="768" alt="Screenshot (80)" src="https://github.com/user-attachments/assets/7ed026e5-5b13-4a55-a977-df8571f4aa45" />
-<img width="1366" height="768" alt="Screenshot (82)" src="https://github.com/user-attachments/assets/9331e85a-9b37-41e1-8705-9daa0aa92337" />
 
 -------------------------------------------------------------------------------
 
